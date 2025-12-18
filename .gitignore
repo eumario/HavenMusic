@@ -19,3 +19,6 @@ mono_crash.*.json
 
 # Builds Folder
 builds/
+
+# Lock Secrets from accidently being updated.
+Library/Secrets.cs
