@@ -18,9 +18,6 @@ namespace HavenMusic.UI;
 [SceneTree(root: "Tree")]
 public partial class FileScannerDialog : PanelContainer
 {
-    static string ClientId = "ENTER_CLIENT_ID";
-    static string ClientSecret = "ENTER_CLIENT_SECRET";
-
     private readonly string[] _supportedFormats = [
         ".3ga", ".669", ".a52", ".aac", ".ac3", ".adt", ".adts",
         ".aif", ".aifc", ".aiff", ".amb", ".amr", ".aob", ".ape",
@@ -50,7 +47,7 @@ public partial class FileScannerDialog : PanelContainer
         Visible = false;
         var config = SpotifyClientConfig
             .CreateDefault()
-            .WithAuthenticator(new ClientCredentialsAuthenticator(ClientId, ClientSecret));
+            .WithAuthenticator(new ClientCredentialsAuthenticator(Secrets.ClientId, Secrets.ClientSecret));
         _client = new SpotifyClient(config);
     }
     
