@@ -1,0 +1,37 @@
+[gd_scene load_steps=3 format=3 uid="uid://csighqxmf3eo3"]
+
+[ext_resource type="Script" uid="uid://c4byo7mhlrpn8" path="res://UI/FileScannerDialog.cs" id="1_mnmrt"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g4yr8"]
+bg_color = Color(0.09803922, 0.09803922, 0.09803922, 0.79607844)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="FileScannerDialog" type="PanelContainer"]
+custom_minimum_size = Vector2(700, 150)
+theme_override_styles/panel = SubResource("StyleBoxFlat_g4yr8")
+script = ExtResource("1_mnmrt")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+alignment = 1
+
+[node name="ScanningLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Scanning for Songs..."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Folder" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+text_overrun_behavior = 4
+
+[node name="File" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+text_overrun_behavior = 4

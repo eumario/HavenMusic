@@ -1,0 +1,64 @@
+[gd_scene load_steps=9 format=3 uid="uid://cho2hd0m4nrki"]
+
+[ext_resource type="FontFile" uid="uid://7dp41k5s42kj" path="res://addons/fontawesome/fonts/fa-solid-900.woff2" id="1_iuum1"]
+[ext_resource type="Script" uid="uid://sb67dg3k2ols" path="res://UI/CategoryEntry.cs" id="1_rvmhm"]
+[ext_resource type="Script" uid="uid://cvg1e8wrm0qsq" path="res://addons/fontawesome/FontAwesome.gd" id="2_rvmhm"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rvmhm"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_xn87b"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_obq3p"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3ubdh"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_52mf1"]
+
+[node name="CategoryEntry" type="Button"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 8.0
+grow_horizontal = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_rvmhm")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_xn87b")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_obq3p")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_3ubdh")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_52mf1")
+flat = true
+script = ExtResource("1_rvmhm")
+IconSize = 16
+IconCategory = "solid"
+IconName = "circle-question"
+Text = "The Text"
+TextSize = 16
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+theme_override_constants/separation = 10
+
+[node name="Control" type="Control" parent="HBoxContainer"]
+custom_minimum_size = Vector2(5, 0)
+layout_mode = 2
+
+[node name="IconNode" type="Label" parent="HBoxContainer"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+localize_numeral_system = false
+theme_override_fonts/font = ExtResource("1_iuum1")
+theme_override_font_sizes/font_size = 16
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("2_rvmhm")
+metadata/_custom_type_script = "uid://cvg1e8wrm0qsq"
+
+[node name="TextNode" type="Label" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "The Text"

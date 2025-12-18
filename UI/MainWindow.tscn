@@ -1,0 +1,577 @@
+[gd_scene load_steps=19 format=3 uid="uid://c0lgu456s2njs"]
+
+[ext_resource type="Script" uid="uid://bt2n1newnl6wo" path="res://UI/MainWindow.cs" id="1_e187l"]
+[ext_resource type="Script" uid="uid://nb2w3fhw4ax2" path="res://Library/MediaPlayer.cs" id="2_dflpw"]
+[ext_resource type="FontFile" uid="uid://7dp41k5s42kj" path="res://addons/fontawesome/fonts/fa-solid-900.woff2" id="2_sq7ho"]
+[ext_resource type="Script" uid="uid://bio3qiqadvjoq" path="res://UI/Header.cs" id="2_uoywe"]
+[ext_resource type="Script" uid="uid://dbhwr47oogsud" path="res://addons/fontawesome/FontAwesomeButton.gd" id="3_l06f4"]
+[ext_resource type="PackedScene" uid="uid://cho2hd0m4nrki" path="res://UI/CategoryEntry.tscn" id="5_uoywe"]
+[ext_resource type="FontFile" uid="uid://dukeah0xlfjyn" path="res://addons/fontawesome/fonts/fa-regular-400.woff2" id="6_g4yr8"]
+[ext_resource type="PackedScene" uid="uid://csighqxmf3eo3" path="res://UI/FileScannerDialog.tscn" id="6_ru481"]
+[ext_resource type="PackedScene" uid="uid://c0w7k6q3ew7vm" path="res://UI/ArtistAlbumSongView.tscn" id="7_hyo5s"]
+[ext_resource type="Shader" uid="uid://nmlieqhwvcgf" path="res://Resources/Shaders/spectrum_visual.gdshader" id="7_xu8c4"]
+[ext_resource type="PackedScene" uid="uid://cos5qomarob8d" path="res://UI/PlayQueueList.tscn" id="8_8rtf6"]
+[ext_resource type="Script" uid="uid://5100m68rn2ar" path="res://UI/Spectrum.cs" id="8_kgife"]
+[ext_resource type="PackedScene" uid="uid://bu0cynr58yi68" path="res://UI/CurrentlyPlayingPanel.tscn" id="13_kgife"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uoywe"]
+bg_color = Color(0.3647059, 0.3647059, 0.3647059, 0.6862745)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ufjcu"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_oaj14"]
+shader = ExtResource("7_xu8c4")
+shader_parameter/freq_data = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/transparency = 0.4
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_2wrro"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ru481"]
+bg_color = Color(0.18431373, 0.18431373, 0.18431373, 0.7921569)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[node name="MainWindow" type="Control"]
+clip_contents = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_e187l")
+
+[node name="Player" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_dflpw")
+metadata/_custom_type_script = "uid://nb2w3fhw4ax2"
+
+[node name="CurrentlyPlayingPanel" parent="." instance=ExtResource("13_kgife")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+
+[node name="MainUI" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="Header" type="PanelContainer" parent="MainUI"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"WindowHeader"
+script = ExtResource("2_uoywe")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MainUI/Header"]
+layout_mode = 2
+
+[node name="Control2" type="Control" parent="MainUI/Header/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="MenuButton" type="Button" parent="MainUI/Header/HBoxContainer"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+localize_numeral_system = false
+theme_type_variation = &"FlatButton"
+theme_override_fonts/font = ExtResource("2_sq7ho")
+theme_override_font_sizes/font_size = 24
+text = ""
+flat = true
+script = ExtResource("3_l06f4")
+icon_size = 24
+icon_name = "bars"
+metadata/_custom_type_script = "uid://dbhwr47oogsud"
+
+[node name="MainMenu" type="PopupMenu" parent="MainUI/Header/HBoxContainer/MenuButton"]
+unique_name_in_owner = true
+oversampling_override = 1.0
+size = Vector2i(209, 205)
+item_count = 9
+item_0/text = "Add Files to Library"
+item_0/id = 0
+item_1/text = "Add Directory To Library"
+item_1/id = 8
+item_2/id = 1
+item_2/separator = true
+item_3/text = "New Playlist"
+item_3/id = 2
+item_4/text = "Add to Playlist"
+item_4/id = 3
+item_5/id = 4
+item_5/separator = true
+item_6/text = "Settings"
+item_6/id = 7
+item_7/text = "About"
+item_7/id = 5
+item_8/text = "Quit"
+item_8/id = 6
+
+[node name="Control3" type="Control" parent="MainUI/Header/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(185, 0)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MainUI/Header/HBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="HistoryBackButton" type="Button" parent="MainUI/Header/HBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+localize_numeral_system = false
+theme_type_variation = &"FlatButton"
+theme_override_fonts/font = ExtResource("2_sq7ho")
+theme_override_font_sizes/font_size = 24
+disabled = true
+text = ""
+flat = true
+script = ExtResource("3_l06f4")
+icon_size = 24
+icon_name = "chevron-left"
+metadata/_custom_type_script = "uid://dbhwr47oogsud"
+
+[node name="HistoryForwardButton" type="Button" parent="MainUI/Header/HBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+localize_numeral_system = false
+theme_type_variation = &"FlatButton"
+theme_override_fonts/font = ExtResource("2_sq7ho")
+theme_override_font_sizes/font_size = 24
+disabled = true
+text = ""
+flat = true
+script = ExtResource("3_l06f4")
+icon_size = 24
+icon_name = "chevron-right"
+metadata/_custom_type_script = "uid://dbhwr47oogsud"
+
+[node name="CenterContainer" type="CenterContainer" parent="MainUI/Header/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WinTitle" type="Label" parent="MainUI/Header/HBoxContainer/CenterContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Haven Music"
+
+[node name="Control4" type="Control" parent="MainUI/Header/HBoxContainer"]
+custom_minimum_size = Vector2(135, 0)
+layout_mode = 2
+
+[node name="MinimizeButton" type="Button" parent="MainUI/Header/HBoxContainer"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+localize_numeral_system = false
+theme_type_variation = &"FlatButton"
+theme_override_fonts/font = ExtResource("2_sq7ho")
+theme_override_font_sizes/font_size = 24
+text = ""
+flat = true
+script = ExtResource("3_l06f4")
+icon_size = 24
+icon_name = "window-minimize"
+metadata/_custom_type_script = "uid://dbhwr47oogsud"
+
+[node name="Control5" type="Control" parent="MainUI/Header/HBoxContainer"]
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="CloseButton" type="Button" parent="MainUI/Header/HBoxContainer"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+localize_numeral_system = false
+theme_type_variation = &"FlatButton"
+theme_override_fonts/font = ExtResource("2_sq7ho")
+theme_override_font_sizes/font_size = 24
+text = "X"
+flat = true
+script = ExtResource("3_l06f4")
+icon_size = 24
+icon_name = "x"
+metadata/_custom_type_script = "uid://dbhwr47oogsud"
+
+[node name="Control" type="Control" parent="MainUI/Header/HBoxContainer"]
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="Content" type="PanelContainer" parent="MainUI"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"WindowContent"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MainUI/Content"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MainUI/Content/HBoxContainer"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+
+[node name="Categories" type="VBoxContainer" parent="MainUI/Content/HBoxContainer/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Control" type="Control" parent="MainUI/Content/HBoxContainer/ScrollContainer/Categories"]
+layout_mode = 2
+
+[node name="Albums" parent="MainUI/Content/HBoxContainer/ScrollContainer/Categories" instance=ExtResource("5_uoywe")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+IconSize = 24
+IconName = "record-vinyl"
+Text = "Albums"
+
+[node name="Artists" parent="MainUI/Content/HBoxContainer/ScrollContainer/Categories" instance=ExtResource("5_uoywe")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+IconSize = 24
+IconName = "user-tag"
+Text = "Artists"
+
+[node name="Songs" parent="MainUI/Content/HBoxContainer/ScrollContainer/Categories" instance=ExtResource("5_uoywe")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+IconSize = 24
+IconCategory = "brands"
+IconName = "itunes-note"
+Text = "Songs"
+
+[node name="HSeparator" type="HSeparator" parent="MainUI/Content/HBoxContainer/ScrollContainer/Categories"]
+layout_mode = 2
+
+[node name="HBoxContainer" parent="MainUI/Content/HBoxContainer/ScrollContainer/Categories" instance=ExtResource("5_uoywe")]
+modulate = Color(0.63375676, 0.6337568, 0.63375676, 1)
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+disabled = true
+IconSize = 24
+IconName = "list"
+Text = "Playlists"
+
+[node name="Playlists" type="VBoxContainer" parent="MainUI/Content/HBoxContainer/ScrollContainer/Categories"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="NewPlaylist" parent="MainUI/Content/HBoxContainer/ScrollContainer/Categories" instance=ExtResource("5_uoywe")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_type_variation = &"FlatButton"
+IconSize = 24
+IconName = "file-circle-plus"
+Text = "New Playlist"
+
+[node name="CurrentPlaying" type="PanelContainer" parent="MainUI/Content/HBoxContainer/ScrollContainer/Categories"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 220)
+layout_mode = 2
+size_flags_vertical = 10
+
+[node name="CurrentArt" type="TextureRect" parent="MainUI/Content/HBoxContainer/ScrollContainer/Categories/CurrentPlaying"]
+unique_name_in_owner = true
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CurrentTitle" type="Label" parent="MainUI/Content/HBoxContainer/ScrollContainer/Categories/CurrentPlaying"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 8
+mouse_filter = 1
+theme_override_styles/normal = SubResource("StyleBoxFlat_uoywe")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_ufjcu")
+text = "Test Song"
+horizontal_alignment = 1
+text_overrun_behavior = 4
+
+[node name="Spectrum" type="ColorRect" parent="MainUI/Content/HBoxContainer/ScrollContainer/Categories/CurrentPlaying"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_oaj14")
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+size_flags_vertical = 0
+mouse_filter = 1
+script = ExtResource("8_kgife")
+
+[node name="VSeparator" type="VSeparator" parent="MainUI/Content/HBoxContainer"]
+layout_mode = 2
+
+[node name="AlbumPlaylistView" type="ScrollContainer" parent="MainUI/Content/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainUI/Content/HBoxContainer/AlbumPlaylistView"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="AlbumView" type="HFlowContainer" parent="MainUI/Content/HBoxContainer/AlbumPlaylistView/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+
+[node name="QueuePlaylistSongs" type="Button" parent="MainUI/Content/HBoxContainer/AlbumPlaylistView/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+text = "Queue Song(s)"
+
+[node name="PlaylistView" type="Tree" parent="MainUI/Content/HBoxContainer/AlbumPlaylistView/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/focus = SubResource("StyleBoxEmpty_2wrro")
+column_titles_visible = true
+enable_recursive_folding = false
+hide_root = true
+select_mode = 1
+
+[node name="ArtistAlbumSongView" parent="MainUI/Content/HBoxContainer" instance=ExtResource("7_hyo5s")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="Controls" type="PanelContainer" parent="MainUI"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_type_variation = &"ControlContainer"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MainUI/Controls"]
+layout_mode = 2
+
+[node name="Spacer" type="Control" parent="MainUI/Controls/HBoxContainer"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="PrevButton" type="Button" parent="MainUI/Controls/HBoxContainer"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+localize_numeral_system = false
+theme_type_variation = &"FlatButton"
+theme_override_fonts/font = ExtResource("2_sq7ho")
+theme_override_font_sizes/font_size = 32
+text = ""
+flat = true
+script = ExtResource("3_l06f4")
+icon_size = 32
+icon_name = "circle-chevron-left"
+metadata/_custom_type_script = "uid://dbhwr47oogsud"
+
+[node name="VSeparator" type="VSeparator" parent="MainUI/Controls/HBoxContainer"]
+layout_mode = 2
+
+[node name="PlayButton" type="Button" parent="MainUI/Controls/HBoxContainer"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+localize_numeral_system = false
+theme_type_variation = &"FlatButton"
+theme_override_fonts/font = ExtResource("2_sq7ho")
+theme_override_font_sizes/font_size = 48
+text = ""
+flat = true
+script = ExtResource("3_l06f4")
+icon_size = 48
+icon_name = "circle-play"
+metadata/_custom_type_script = "uid://dbhwr47oogsud"
+
+[node name="VSeparator2" type="VSeparator" parent="MainUI/Controls/HBoxContainer"]
+layout_mode = 2
+
+[node name="NextButton" type="Button" parent="MainUI/Controls/HBoxContainer"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+localize_numeral_system = false
+theme_type_variation = &"FlatButton"
+theme_override_fonts/font = ExtResource("2_sq7ho")
+theme_override_font_sizes/font_size = 32
+text = ""
+flat = true
+script = ExtResource("3_l06f4")
+icon_size = 32
+icon_name = "circle-chevron-right"
+metadata/_custom_type_script = "uid://dbhwr47oogsud"
+
+[node name="Spacer2" type="Control" parent="MainUI/Controls/HBoxContainer"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="CurrentTime" type="Label" parent="MainUI/Controls/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0:00"
+
+[node name="TimeProgress" type="HSlider" parent="MainUI/Controls/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.0
+value = 0.2
+
+[node name="TotalTime" type="Label" parent="MainUI/Controls/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0:00"
+
+[node name="Spacer4" type="Control" parent="MainUI/Controls/HBoxContainer"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="LoopButton" type="Button" parent="MainUI/Controls/HBoxContainer"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+localize_numeral_system = false
+tooltip_text = "Loop"
+theme_type_variation = &"FlatButton"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_sq7ho")
+theme_override_font_sizes/font_size = 24
+text = ""
+flat = true
+script = ExtResource("3_l06f4")
+icon_size = 24
+icon_name = "repeat"
+metadata/_custom_type_script = "uid://dbhwr47oogsud"
+
+[node name="LoopSingular" type="Label" parent="MainUI/Controls/HBoxContainer/LoopButton"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 8
+text = "1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VSeparator4" type="VSeparator" parent="MainUI/Controls/HBoxContainer"]
+layout_mode = 2
+
+[node name="RandomButton" type="Button" parent="MainUI/Controls/HBoxContainer"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+localize_numeral_system = false
+theme_type_variation = &"FlatButton"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_sq7ho")
+theme_override_font_sizes/font_size = 24
+text = ""
+flat = true
+script = ExtResource("3_l06f4")
+icon_size = 24
+icon_name = "shuffle"
+metadata/_custom_type_script = "uid://dbhwr47oogsud"
+
+[node name="VSeparator5" type="VSeparator" parent="MainUI/Controls/HBoxContainer"]
+layout_mode = 2
+
+[node name="VolumeButton" type="Button" parent="MainUI/Controls/HBoxContainer"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+localize_numeral_system = false
+theme_type_variation = &"FlatButton"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_sq7ho")
+theme_override_font_sizes/font_size = 24
+text = ""
+flat = true
+script = ExtResource("3_l06f4")
+icon_size = 24
+icon_name = "volume-high"
+metadata/_custom_type_script = "uid://dbhwr47oogsud"
+
+[node name="PlayQueueSep" type="VSeparator" parent="MainUI/Controls/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PlayQueueButton" type="Button" parent="MainUI/Controls/HBoxContainer"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+localize_numeral_system = false
+theme_type_variation = &"FlatButton"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("6_g4yr8")
+theme_override_font_sizes/font_size = 24
+text = ""
+flat = true
+script = ExtResource("3_l06f4")
+icon_size = 24
+icon_type = "regular"
+icon_name = "rectangle-list"
+metadata/_custom_type_script = "uid://dbhwr47oogsud"
+
+[node name="Spacer3" type="Control" parent="MainUI/Controls/HBoxContainer"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="BusyOverlay" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ru481")
+
+[node name="CenterContainer" type="CenterContainer" parent="BusyOverlay"]
+layout_mode = 2
+
+[node name="FileScannerDialog" parent="BusyOverlay/CenterContainer" instance=ExtResource("6_ru481")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PlayQueueList" parent="." instance=ExtResource("8_8rtf6")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 6
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -344.0
+offset_bottom = 337.0

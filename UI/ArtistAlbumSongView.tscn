@@ -1,0 +1,72 @@
+[gd_scene load_steps=3 format=3 uid="uid://c0w7k6q3ew7vm"]
+
+[ext_resource type="Script" uid="uid://cj6omh5d24tlr" path="res://UI/ArtistAlbumSongView.cs" id="1_vxlsg"]
+[ext_resource type="Material" uid="uid://1vyi6qmoecwg" path="res://Resources/rounded_corners.tres" id="2_fu0hx"]
+
+[node name="ArtistAlbumSongView" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+script = ExtResource("1_vxlsg")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="ArtistImage" type="TextureRect" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+material = ExtResource("2_fu0hx")
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CenterContainer" type="CenterContainer" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="ArtistName" type="Label" parent="VBoxContainer/HBoxContainer/CenterContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Artist Name"
+
+[node name="QueueArtist" type="Button" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 10
+size_flags_vertical = 8
+text = "Queue Artist"
+
+[node name="Control" type="Control" parent="VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(-1, 0)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "    Albums"
+
+[node name="AlbumList" type="Tree" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+columns = 4
+column_titles_visible = true
+hide_root = true
+select_mode = 1
+
+[node name="Label2" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "    Songs"
+
+[node name="SongList" type="Tree" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+columns = 3
+column_titles_visible = true
+hide_root = true
+select_mode = 1

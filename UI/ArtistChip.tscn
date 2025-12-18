@@ -1,0 +1,41 @@
+[gd_scene load_steps=3 format=3 uid="uid://d36ribum52nj6"]
+
+[ext_resource type="Script" uid="uid://d03mpvwrttpsa" path="res://UI/ArtistChip.cs" id="1_jx8nj"]
+[ext_resource type="Material" uid="uid://1vyi6qmoecwg" path="res://Resources/rounded_corners.tres" id="2_jsjul"]
+
+[node name="ArtistChip" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_jx8nj")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Artwork" type="TextureRect" parent="VBoxContainer"]
+unique_name_in_owner = true
+material = ExtResource("2_jsjul")
+clip_contents = true
+custom_minimum_size = Vector2(230, 230)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ArtistName" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+text_overrun_behavior = 4
+
+[node name="AlbumCount" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+text_overrun_behavior = 4
+
+[node name="SongCount" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2

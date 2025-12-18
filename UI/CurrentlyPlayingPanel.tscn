@@ -1,0 +1,166 @@
+[gd_scene load_steps=10 format=3 uid="uid://bu0cynr58yi68"]
+
+[ext_resource type="Script" uid="uid://cmixjn64bm8e8" path="res://UI/CurrentlyPlayingPanel.cs" id="1_1vhjb"]
+[ext_resource type="Texture2D" uid="uid://cuaxu6huikafd" path="res://assets/artwork/no-album-art.png" id="2_dsm6a"]
+[ext_resource type="Shader" uid="uid://bsm67f0dj6bji" path="res://Resources/Shaders/frosted_glass.gdshader" id="2_x84il"]
+[ext_resource type="Shader" uid="uid://nmlieqhwvcgf" path="res://Resources/Shaders/spectrum_visual.gdshader" id="3_lihly"]
+[ext_resource type="FontFile" uid="uid://7dp41k5s42kj" path="res://addons/fontawesome/fonts/fa-solid-900.woff2" id="3_r0j5v"]
+[ext_resource type="Script" uid="uid://dbhwr47oogsud" path="res://addons/fontawesome/FontAwesomeButton.gd" id="4_dsm6a"]
+[ext_resource type="Script" uid="uid://5100m68rn2ar" path="res://UI/Spectrum.cs" id="4_kc6cj"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sukvl"]
+shader = ExtResource("2_x84il")
+shader_parameter/intensity = 0.0
+shader_parameter/tint_color = Color(0.41215247, 0.41215247, 0.41215247, 1)
+shader_parameter/tint_amount = 0.09200000437
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_r0j5v"]
+shader = ExtResource("3_lihly")
+shader_parameter/freq_data = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/transparency = 0.4
+
+[node name="CurrentlyPlayingPanel" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"CurrentlyPlayingPanel"
+script = ExtResource("1_1vhjb")
+
+[node name="AlbumBackground" type="TextureRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+texture = ExtResource("2_dsm6a")
+expand_mode = 1
+
+[node name="GlassEffect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_sukvl")
+layout_mode = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="AlbumIcon" type="TextureRect" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 250)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SongTitle" type="Label" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="SongArtist" type="Label" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="SongAlbum" type="Label" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="CurrentTime" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0:00"
+
+[node name="TimeProgress" type="HSlider" parent="CenterContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.0
+value = 0.2
+
+[node name="TotalTime" type="Label" parent="CenterContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0:00"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="PrevButton" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+localize_numeral_system = false
+theme_type_variation = &"FlatButton"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_r0j5v")
+theme_override_font_sizes/font_size = 32
+text = ""
+flat = true
+script = ExtResource("4_dsm6a")
+icon_size = 32
+icon_name = "circle-chevron-left"
+metadata/_custom_type_script = "uid://dbhwr47oogsud"
+
+[node name="VSeparator" type="VSeparator" parent="CenterContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+
+[node name="PlayButton" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+localize_numeral_system = false
+theme_type_variation = &"FlatButton"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_r0j5v")
+theme_override_font_sizes/font_size = 48
+text = ""
+flat = true
+script = ExtResource("4_dsm6a")
+icon_size = 48
+icon_name = "circle-play"
+metadata/_custom_type_script = "uid://dbhwr47oogsud"
+
+[node name="VSeparator2" type="VSeparator" parent="CenterContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+
+[node name="NextButton" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+localize_numeral_system = false
+theme_type_variation = &"FlatButton"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_r0j5v")
+theme_override_font_sizes/font_size = 32
+text = ""
+flat = true
+script = ExtResource("4_dsm6a")
+icon_size = 32
+icon_name = "circle-chevron-right"
+metadata/_custom_type_script = "uid://dbhwr47oogsud"
+
+[node name="Spectrum" type="ColorRect" parent="CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_r0j5v")
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_vertical = 0
+mouse_filter = 1
+script = ExtResource("4_kc6cj")
