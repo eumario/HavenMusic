@@ -19,6 +19,7 @@ public partial class Header : PanelContainer
     public void HideBar()
     {
         ThemeTypeVariation = "FullWindowContainer";
+        GetNode<Button>("HBoxContainer/BackButton").Visible = true;
         GetNode<Button>("HBoxContainer/MenuButton").Visible = false;
         GetNode<HBoxContainer>("HBoxContainer/HBoxContainer").Visible = false;
         GetNode<Label>("HBoxContainer/CenterContainer/WinTitle").Visible = false;
@@ -27,6 +28,7 @@ public partial class Header : PanelContainer
     public void ShowBar()
     {
         ThemeTypeVariation = "WindowHeader";
+        GetNode<Button>("HBoxContainer/BackButton").Visible = false;
         GetNode<Button>("HBoxContainer/MenuButton").Visible = true;
         GetNode<HBoxContainer>("HBoxContainer/HBoxContainer").Visible = true;
         GetNode<Label>("HBoxContainer/CenterContainer/WinTitle").Visible = true;

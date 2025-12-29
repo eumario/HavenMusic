@@ -78,6 +78,21 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
+[node name="BackButton" type="Button" parent="MainUI/Header/HBoxContainer"]
+unique_name_in_owner = true
+auto_translate_mode = 2
+visible = false
+layout_mode = 2
+localize_numeral_system = false
+theme_override_fonts/font = ExtResource("2_sq7ho")
+theme_override_font_sizes/font_size = 24
+text = ""
+flat = true
+script = ExtResource("3_l06f4")
+icon_size = 24
+icon_name = "circle-arrow-left"
+metadata/_custom_type_script = "uid://dbhwr47oogsud"
+
 [node name="MenuButton" type="Button" parent="MainUI/Header/HBoxContainer"]
 unique_name_in_owner = true
 auto_translate_mode = 2
