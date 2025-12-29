@@ -34,6 +34,8 @@ public partial class FileScannerDialog : PanelContainer
     private List<Album> _albumsCache = [];
     private List<Artist> _artistsCache = [];
     private List<Artwork> _artworksCache = [];
+    private List<string> _artistQueue = [];
+    private List<TagLib.File> _albumQueue = [];
     private SpotifyClient _client;
     
 
@@ -113,8 +115,7 @@ public partial class FileScannerDialog : PanelContainer
                             dbArtist.Name = artist;
                             Database.Artists.Add(dbArtist);
                             _artistsCache.Add(dbArtist);
-                            await LookupArtist(dbArtist);
-                            await ToSignal(GetTree().CreateTimer(0.2), Timer.SignalName.Timeout);
+                            _artistQueue.Add(artist);
                         }
                         song.Artists.Add(dbArtist);
                     }
@@ -133,37 +134,7 @@ public partial class FileScannerDialog : PanelContainer
                     song.Artists.Add(dbArtist);
                 }
 
-                // Attempt to load Artwork
-                Artwork? artwork = null!;
-
-                var picture = tagFile.Tag.Pictures.FirstOrDefault();
-
-                if (picture != null)
-                {
-                    byte[] buffer;
-                    if (picture.MimeType == "image/png")
-                        buffer = picture.Data.ToArray();
-                    else
-                    {
-                        var sharpImage = SixLabors.ImageSharp.Image.Load(picture.Data.ToArray());
-                        var memStream = new MemoryStream();
-                        await sharpImage.SaveAsPngAsync(memStream);
-                        buffer = memStream.ToArray();
-                    }
-
-                    var hash = buffer.Sha512Hash().HashToStr();
-                    artwork = Database.Artworks.FirstOrDefault(x => x.Hash == hash) ??
-                              _artworksCache.FirstOrDefault(x => x.Hash == hash);
-                    if (artwork == null)
-                    {
-                        artwork = new Artwork();
-                        artwork.Hash = hash;
-                        artwork.ImagePath = $"user://cache/album_art/{Guid.NewGuid()}.png".GlobalizePath();
-                        await System.IO.File.WriteAllBytesAsync(artwork.ImagePath, buffer);
-                        Database.Artworks.Add(artwork);
-                        _artworksCache.Add(artwork);
-                    }
-                }
+                _albumQueue.Add(tagFile);
 
                 // Setup Album
                 var album = Database.Albums.FirstOrDefault(x => x.Title == (tagFile.Tag.Album ?? "Unknown Album")) ??
@@ -172,8 +143,6 @@ public partial class FileScannerDialog : PanelContainer
                 {
                     album = new Album();
                     album.Title = tagFile.Tag.Album ?? "Unknown Album";
-                    if (artwork != null)
-                        album.Artwork = artwork;
                     
                     foreach (var artist in song.Artists)
                         album.Artists.Add(artist);
@@ -182,8 +151,6 @@ public partial class FileScannerDialog : PanelContainer
                 }
                 
                 song.Album = album;
-                if (artwork != null)
-                    song.Artwork = artwork;
                 
                 // Save the song
                 Database.Songs.Add(song);
@@ -208,7 +175,83 @@ public partial class FileScannerDialog : PanelContainer
             _artworksCache.Clear();
             _songsCache.Clear();
             GodotThreading.RunInMainThread(() => Visible = false);
+            _ = FetchArtist();
+            _ = FetchAlbumArtwork();
+            GodotThreading.RunInMainThread(async () =>
+            {
+                while (_artistQueue.Count > 0 && _albumQueue.Count > 0)
+                {
+                    await this.ProcessFrame();
+                }
+
+                await Database.SaveChangesAsync();
+            });
         }
+    }
+
+    private async Task FetchArtist()
+    {
+        var cnt = _artistQueue.Count;
+        foreach (var (artistName, i) in _artistQueue.Select((x, y) => (x,y)))
+        {
+            var pct = (double)i / cnt * 100;
+            GodotThreading.RunInMainThread(() => MainWindow.Instance.Artists.Text = $"Artists ({pct:F2}%)");
+            
+            var artist = Database.Artists.FirstOrDefault(x => x.Name == artistName);
+            if (artist == null) continue;
+            await LookupArtist(artist);
+            await ToSignal(GetTree().CreateTimer(0.1f), SceneTreeTimer.SignalName.Timeout);
+        }
+
+        _artistQueue.Clear();
+        GodotThreading.RunInMainThread(() => MainWindow.Instance.Artists.Text = $"Artists");
+    }
+
+    private async Task FetchAlbumArtwork()
+    {
+        var cnt = _albumQueue.Count;
+        foreach (var (tagFile, i) in _albumQueue.Select((x, y) => (x, y)))
+        {
+            var pct = (float)i / cnt * 100;
+            GodotThreading.RunInMainThread(() => MainWindow.Instance.Songs.Text = $"Songs ({pct:F2}%)");
+            var song = Database.Songs.FirstOrDefault(x => x.FilePath == tagFile.Name);
+            if (song?.Album == null) continue;
+            if (song.Album.Artwork != null) continue;
+
+            var picture = tagFile.Tag.Pictures.FirstOrDefault();
+
+            if (picture == null) continue;
+            byte[] buffer;
+            if (picture.MimeType == "image/png")
+                buffer = picture.Data.ToArray();
+            else
+            {
+                var sharpImage = SixLabors.ImageSharp.Image.Load(picture.Data.ToArray());
+                var memStream = new MemoryStream();
+                await sharpImage.SaveAsPngAsync(memStream);
+                buffer = memStream.ToArray();
+            }
+
+            var hash = buffer.Sha512Hash().HashToStr();
+            var artwork = Database.Artworks.FirstOrDefault(x => x.Hash == hash) ??
+                          _artworksCache.FirstOrDefault(x => x.Hash == hash);
+
+            if (artwork == null)
+            {
+                artwork = new Artwork();
+                artwork.Hash = hash;
+                artwork.ImagePath = $"user://cache/album_art/{Guid.NewGuid()}.png".GlobalizePath();
+                await System.IO.File.WriteAllBytesAsync(artwork.ImagePath, buffer);
+                Database.Artworks.Add(artwork);
+                _artworksCache.Add(artwork);
+            }
+            song.Album.Artwork = artwork;
+            song.Artwork = artwork;
+            Globals.Instance.EmitAlbumArtworkUpdated(song, artwork);
+        }
+
+        _albumQueue.Clear();
+        GodotThreading.RunInMainThread(() => MainWindow.Instance.Songs.Text = $"Songs");
     }
 
     private async Task LookupArtist(Artist artist)
@@ -216,9 +259,7 @@ public partial class FileScannerDialog : PanelContainer
         var req = new SearchRequest(SearchRequest.Types.Artist, artist.Name);
         var res = await _client.Search.Item(req);
         var spotifyArtist = res.Artists.Items?.FirstOrDefault();
-        if (spotifyArtist == null)
-            return;
-        var image = spotifyArtist.Images.FirstOrDefault();
+        var image = spotifyArtist?.Images.FirstOrDefault();
         if (image == null)
             return;
         using var httpClient = new System.Net.Http.HttpClient();
@@ -234,16 +275,24 @@ public partial class FileScannerDialog : PanelContainer
                 data = memStream.ToArray();
             }
 
-            var art = new Artwork();
-            art.Hash = data.Sha512Hash().HashToStr();
-            art.ImagePath = $"user://cache/artist_art/{Guid.NewGuid()}.png".GlobalizePath();
-            await System.IO.File.WriteAllBytesAsync(art.ImagePath, data);
-            Database.Artworks.Add(art);
-            artist.Artwork = art;
+            var hash = data.Sha512Hash().HashToStr();
+            var artwork = Database.Artworks.FirstOrDefault(x => x.Hash == hash) ??
+                          _artworksCache.FirstOrDefault(x => x.Hash == hash);
+
+            if (artwork == null)
+            {
+                artwork = new Artwork();
+                artwork.Hash = data.Sha512Hash().HashToStr();
+                artwork.ImagePath = $"user://cache/artist_art/{Guid.NewGuid()}.png".GlobalizePath();
+                await System.IO.File.WriteAllBytesAsync(artwork.ImagePath, data);
+                Database.Artworks.Add(artwork);
+                artist.Artwork = artwork;
+            }
+            Globals.Instance.EmitArtistArtworkUpdated(artist, artwork);
         }
         catch (HttpRequestException ex)
         {
-            GD.PushError($"Failed to download Image from: {image.Url} for Artist '{artist.Name}'.");
+            GLogger.Error($"Failed to download Image from: {image.Url} for Artist '{artist.Name}'.");
         }
     }
 }
