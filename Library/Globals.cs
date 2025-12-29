@@ -1,10 +1,9 @@
 using Godot;
-using System;
 using HavenMusic.Library.Models;
 
-[Singleton]
 public partial class Globals : Node
 {
+    public static Globals Instance { get; private set; }
     [Signal]
     public delegate void ArtistArtworkUpdatedEventHandler(Artist artist, Artwork artwork);
 
@@ -14,4 +13,9 @@ public partial class Globals : Node
     public void EmitArtistArtworkUpdated(Artist artist, Artwork artwork) =>
         EmitSignalArtistArtworkUpdated(artist, artwork);
     public void EmitAlbumArtworkUpdated(Song song, Artwork artwork) => EmitSignalAlbumArtworkUpdated(song, artwork);
+
+    public override void _Ready()
+    {
+        Instance = this;
+    }
 }
