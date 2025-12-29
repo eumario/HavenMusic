@@ -14,7 +14,7 @@ public partial class MainWindow : Control
     #region Internal Variables
     private readonly Database _database;
 
-    enum MainView
+    public enum MainView
     {
         AlbumView,                  // AlbumView
         ArtistView,                 // AlbumView
@@ -32,7 +32,7 @@ public partial class MainWindow : Control
         Song,
     }
 
-    record struct HistoryItem(MainView View, object? Item = null, int ScrollPos = -1, int ScrollPos2 = -1);
+    public record struct HistoryItem(MainView View, object? Item = null, int ScrollPos = -1, int ScrollPos2 = -1);
 
     private readonly List<HistoryItem> _history = [];
     private readonly List<HistoryItem> _backHistory = [];
@@ -45,6 +45,8 @@ public partial class MainWindow : Control
     private bool _wasPlaying = false;
     private LoopMode _loopMode = LoopMode.None;
     private TreeItem? _playlistRoot;
+
+    private MprisService _mprisService;
     #endregion
 
     #region ctor
@@ -61,10 +63,18 @@ public partial class MainWindow : Control
     public void OnReady()
     {
         GodotThreading.EstablishMainThread();
+        if (!DirAccess.DirExistsAbsolute("user://cache"))
+            DirAccess.MakeDirAbsolute("user://cache");
+        if (!DirAccess.DirExistsAbsolute("user://cache/album_art"))
+            DirAccess.MakeDirAbsolute("user://cache/album_art");
+        if (!DirAccess.DirExistsAbsolute("user://cache/artist_art"))
+            DirAccess.MakeDirAbsolute("user://cache/artist_art");
         Instance = this;
         FileScannerDialog.Database = _database;
         BusyOverlay.Visible = false;
         CurrentPlaying.Visible = false;
+        BackButton.Visible = false;
+        ArtistAlbumSongView.Player = Player;
         RandomButton.Set("color", Colors.DimGray);
         LoopButton.Set("color", Colors.DimGray);
         _history.Add(new HistoryItem(MainView.AlbumView));
@@ -75,7 +85,14 @@ public partial class MainWindow : Control
         PlayQueueList.Visible = false;
         SwitchHistory();
 
+        _mprisService = new MprisService(Player);
+
         SetupEventHandlers();
+        
+        GodotThreading.RunInMainThread(async () =>
+        {
+            await _mprisService.InitializeAsync();
+        });
     }
     
     public override partial void _Process(double delta);
@@ -131,6 +148,13 @@ public partial class MainWindow : Control
                 break;
         }
     }
+
+    public void UpdateHistory(HistoryItem item)
+    {
+        _history.Add(item);
+        _backHistory.Clear();
+        SwitchHistory();
+    }
     
     #endregion
     
@@ -148,27 +172,21 @@ public partial class MainWindow : Control
         {
             if (_history[^1].View == MainView.AlbumView)
                 return;
-            _history.Add(new HistoryItem(MainView.AlbumView));
-            _backHistory.Clear();
-            SwitchHistory();
+            UpdateHistory(new HistoryItem(MainView.AlbumView));
         };
         
         Artists.Pressed += () =>
         {
             if (_history[^1].View == MainView.ArtistView)
                 return;
-            _history.Add(new HistoryItem(MainView.ArtistView));
-            _backHistory.Clear();
-            SwitchHistory();
+            UpdateHistory(new HistoryItem(MainView.ArtistView));
         };
 
         Songs.Pressed += () =>
         {
             if (_history[^1].View == MainView.SongListView)
                 return;
-            _history.Add(new HistoryItem(MainView.SongListView));
-            _backHistory.Clear();
-            SwitchHistory();
+            UpdateHistory(new HistoryItem(MainView.SongListView));
         };
 
         PlayButton.Pressed += async () =>
@@ -298,7 +316,7 @@ public partial class MainWindow : Control
 
         PlaylistView.ItemActivated += HandlePlaylistViewItemActivated;
 
-        Player.SongChanged += (Song? song) =>
+        Player.SongChanged += async (Song? song) =>
         {
             CurrentPlaying.Visible = song != null;
             if (song == null)
@@ -313,7 +331,7 @@ public partial class MainWindow : Control
             TotalTime.Text = TimeSpan.FromSeconds(song.Length).ToDisplayTime();
         };
         
-        Player.PlaybackPositionChanged += (pos) =>
+        Player.PlaybackPositionChanged += async (pos) =>
         {
             CurrentTime.Text = TimeSpan.FromSeconds(pos).ToDisplayTime();
             if (!_isSeeking)
@@ -391,6 +409,7 @@ public partial class MainWindow : Control
             item.ScrollPos = AlbumPlaylistView.ScrollVertical;
             _history[^1] = item;
         };
+        
         CurrentPlaying.GuiInput += (inputEvent) =>
         {
             if (inputEvent is not InputEventMouseButton mbEvent) return;
@@ -401,6 +420,15 @@ public partial class MainWindow : Control
             Controls.Visible = false;
             CurrentlyPlayingPanel.Visible = true;
         };
+
+        BackButton.Pressed += () =>
+        {
+            Header.ShowBar();
+            Content.Visible = true;
+            Controls.Visible = true;
+            CurrentlyPlayingPanel.Visible = false;
+        };
+
     }
     
     private void HandleGoBack()
@@ -454,7 +482,9 @@ public partial class MainWindow : Control
     private void HandlePlaylistViewItemActivated()
     {
         var item = PlaylistView.GetSelected();
+        if (item == null) return;
         var song = (Song)item.GetMetadata(0);
+        GLogger.Debug($"Current Song: {song.Artists.First().Name} - {song.Title} - {song.FilePath}");
         PlayerQueue.Instance.QueueSong(song);
         if (!Player.IsPlaying() && !Player.IsPaused())
         {
@@ -483,12 +513,12 @@ public partial class MainWindow : Control
         ArtistAlbumSongView.Visible = false;
         AlbumView.QueueFreeChildren();
 
-        foreach (var album in _database.Albums.ToList())
+        foreach (var album in _database.Albums.OrderBy(x => x.Title))
         {
             var card = AlbumChip.Instantiate(album);
             card.AlbumSelected += selectedAlbum =>
             {
-                _history.Add(new HistoryItem(MainView.AlbumSongListView, selectedAlbum));
+                UpdateHistory(new HistoryItem(MainView.AlbumSongListView, selectedAlbum));
                 _backHistory.Clear();
                 SwitchHistory();
             };
@@ -521,7 +551,7 @@ public partial class MainWindow : Control
         PlaylistView.SetColumnCustomMinimumWidth(2, 60);
         PlaylistView.Clear();
         _playlistRoot = PlaylistView.CreateItem();
-        foreach (var song in album.Songs)
+        foreach (var song in album.Songs.OrderBy(x => x.Title))
         {
             var item = _playlistRoot.CreateChild();
             item.SetText(0, song.Title);
@@ -562,7 +592,7 @@ public partial class MainWindow : Control
         PlaylistView.SetColumnCustomMinimumWidth(3, 60);
         PlaylistView.Clear();
         _playlistRoot = PlaylistView.CreateItem();
-        foreach (var song in _database.Songs.ToList())
+        foreach (var song in _database.Songs.OrderBy(x => x.Album.Title).ThenBy(x => x.Title))
         {
             var item = _playlistRoot.CreateChild();
             item.SetText(0, song.Title);
@@ -590,12 +620,12 @@ public partial class MainWindow : Control
         AlbumPlaylistView.Visible = true;
         ArtistAlbumSongView.Visible = false;
         AlbumView.QueueFreeChildren();
-        foreach (var artist in _database.Artists.ToList())
+        foreach (var artist in _database.Artists.OrderBy(x => x.Name))
         {
             var card = ArtistChip.Instantiate(artist);
             card.ArtistSelected += (artist) =>
             {
-                _history.Add(new HistoryItem(MainView.ArtistSongListView, artist));
+                UpdateHistory(new HistoryItem(MainView.ArtistSongListView, artist));
                 _backHistory.Clear();
                 SwitchHistory();
             };
