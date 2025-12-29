@@ -16,6 +16,10 @@ run/main_scene="uid://c0lgu456s2njs"
 config/features=PackedStringArray("4.5", "C#")
 config/icon="res://icon.png"
 
+[autoload]
+
+Globals="*res://Library/Globals.cs"
+
 [debug]
 
 settings/gdscript/always_track_call_stacks=true
