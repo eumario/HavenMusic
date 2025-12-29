@@ -348,7 +348,6 @@ size_flags_vertical = 3
 
 [node name="AlbumView" type="HFlowContainer" parent="MainUI/Content/HBoxContainer/AlbumPlaylistView/VBoxContainer"]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -357,6 +356,7 @@ theme_override_constants/v_separation = 10
 
 [node name="QueuePlaylistSongs" type="Button" parent="MainUI/Content/HBoxContainer/AlbumPlaylistView/VBoxContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 8
 text = "Queue Song(s)"
