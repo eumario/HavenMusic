@@ -337,10 +337,11 @@ public partial class MainWindow : Control
             if (!_isSeeking)
                 TimeProgress.Value = pos;
         };
-        
-        Player.PlaybackPaused += () => Spectrum.Paused = Player.IsPaused();
+
+        Player.PlaybackPaused += () => Spectrum.Paused = true;
         Player.PlaybackStopped += () => Spectrum.Paused = true;
         Player.PlaybackStarted += () => Spectrum.Paused = false;
+        Player.PlaybackResumed += () => Spectrum.Paused = false;
         
         Player.PlaybackFinished += async () =>
         {
