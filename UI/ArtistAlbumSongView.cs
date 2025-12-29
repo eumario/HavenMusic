@@ -10,6 +10,7 @@ namespace HavenMusic.UI;
 [SceneTree(root: "Tree")]
 public partial class ArtistAlbumSongView : PanelContainer
 {
+    public MediaPlayer Player;
     private TreeItem? _albumRoot = null!;
     private TreeItem? _songRoot = null!;
     
@@ -61,6 +62,30 @@ public partial class ArtistAlbumSongView : PanelContainer
             win.Player.CurrentSong = PlayerQueue.Instance.CurrentSong;
             win.Player.Play();
         };
+
+        SongList.ItemActivated += () =>
+        {
+            var item = SongList.GetSelected();
+            if (item == null) return;
+            var song = (Song)item.GetMetadata(0);
+            GLogger.Debug($"Current Song: {song.Artists.First().Name} - {song.Title} - {song.FilePath}");
+            PlayerQueue.Instance.QueueSong(song);
+            if (!Player.IsPlaying() && !Player.IsPaused())
+            {
+                song = PlayerQueue.Instance.CurrentSong;
+                Player.CurrentSong = song;
+                Player.Play();
+            }
+        };
+
+        AlbumList.ItemActivated += () =>
+        {
+            var item = AlbumList.GetSelected();
+            if (item == null) return;
+            var album = (Album)item.GetMetadata(0);
+
+            MainWindow.Instance.UpdateHistory(new MainWindow.HistoryItem(MainWindow.MainView.AlbumSongListView, album));
+        };
     }
 
     private void PopulateAlbums()
@@ -69,13 +94,14 @@ public partial class ArtistAlbumSongView : PanelContainer
         if (Artist == null) return;
         _albumRoot = AlbumList.CreateItem();
 
-        foreach (var album in Artist.Albums)
+        foreach (var album in Artist.Albums.OrderBy(x => x.Title))
         {
             var item = _albumRoot.CreateChild();
             item.SetText(0, album.Title);
             item.SetText(1, string.Join(", ", album.Artists.Select(x => x.Name)));
             item.SetText(2, $"{album.Songs.Count}");
             item.SetText(3, TimeSpan.FromSeconds(album.Songs.Select(x => x.Length).Sum()).ToDisplayTime());
+            item.SetMetadata(0, album);
         }
     }
 
@@ -85,12 +111,13 @@ public partial class ArtistAlbumSongView : PanelContainer
         if (Artist == null) return;
         _songRoot = SongList.CreateItem();
 
-        foreach (var song in Artist.Songs)
+        foreach (var song in Artist.Songs.OrderBy(x => x.Album.Title).ThenBy(x => x.Title))
         {
             var item = _songRoot.CreateChild();
             item.SetText(0, song.Title);
             item.SetText(1, song.Album?.Title ?? "Unknown Album");
             item.SetText(2, TimeSpan.FromSeconds(song.Length).ToDisplayTime());
+            item.SetMetadata(0, song);
         }
     }
 }
