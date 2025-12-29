@@ -10,7 +10,7 @@ public partial class Artwork : RefCounted
     [Required]
     public string Hash { get; set; }
     [Required]
-    public byte[]? ImageData { get; set; }
+    public string ImagePath { get; set; }
 
     private Texture2D? _texture;
 
@@ -19,13 +19,15 @@ public partial class Artwork : RefCounted
     {
         get
         {
-            if (ImageData == null || ImageData.Length == 0)
+            if (string.IsNullOrEmpty(ImagePath))
                 return null;
 
             if (_texture == null)
             {
-                var img = new Image();
-                img.LoadPngFromBuffer(ImageData);
+                var img = Image.LoadFromFile(ImagePath);
+                if (img == null)
+                    return null;
+                
                 _texture = ImageTexture.CreateFromImage(img);
             }
 
