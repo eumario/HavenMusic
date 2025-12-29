@@ -82,24 +82,6 @@ public partial class FileScannerDialog : PanelContainer
                 // Setup Artists
 
                 var artists = new List<string>();
-                // if (tagFile.Tag.AlbumArtists.Length == 0 && tagFile.Tag.Performers.Length == 0)
-                // {
-                //     var dbArtist = Database.Artists.FirstOrDefault(x => x.Name == "Unknown Artist") ??
-                //                    _artistsCache.FirstOrDefault(x => x.Name == "Unknown Artist");
-                //     if (dbArtist == null)
-                //     {
-                //         dbArtist = new Artist();
-                //         dbArtist.Name = "Unknown Artist";
-                //         Database.Artists.Add(dbArtist);
-                //         _artistsCache.Add(dbArtist);
-                //     }
-                //
-                //     song.Artists.Add(dbArtist);
-                // }
-                // else if (tagFile.Tag.Performers.Length > 0)
-                //     artists.AddRange(tagFile.Tag.Performers);
-                // else
-                //     artists.AddRange(tagFile.Tag.AlbumArtists);
 
                 foreach (var artist in tagFile.Tag.AlbumArtists)
                 {
@@ -175,8 +157,9 @@ public partial class FileScannerDialog : PanelContainer
                     if (artwork == null)
                     {
                         artwork = new Artwork();
-                        artwork.Hash = buffer.Sha512Hash().HashToStr();
-                        artwork.ImageData = buffer;
+                        artwork.Hash = hash;
+                        artwork.ImagePath = $"user://cache/album_art/{Guid.NewGuid()}.png".GlobalizePath();
+                        await System.IO.File.WriteAllBytesAsync(artwork.ImagePath, buffer);
                         Database.Artworks.Add(artwork);
                         _artworksCache.Add(artwork);
                     }
@@ -253,7 +236,8 @@ public partial class FileScannerDialog : PanelContainer
 
             var art = new Artwork();
             art.Hash = data.Sha512Hash().HashToStr();
-            art.ImageData = data;
+            art.ImagePath = $"user://cache/artist_art/{Guid.NewGuid()}.png".GlobalizePath();
+            await System.IO.File.WriteAllBytesAsync(art.ImagePath, data);
             Database.Artworks.Add(art);
             artist.Artwork = art;
         }
