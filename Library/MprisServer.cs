@@ -38,6 +38,12 @@ public class MprisService : IDisposable
         _player.PlaybackStarted += OnPlaybackStateChanged;
         _player.PlaybackStopped += OnPlaybackStateChanged;
         _player.SongChanged += OnSongChanged;
+
+        Globals.Instance.AlbumArtworkUpdated += (song, art) =>
+        {
+            if (_player.CurrentSong != song) return;
+            OnSongChanged(song);
+        };
     }
 
     public async Task InitializeAsync()

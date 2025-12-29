@@ -1,5 +1,6 @@
 using Godot;
 using System.Linq;
+using HavenMusic.Library;
 using HavenMusic.Library.Models;
 using HavenMusic.Library.Resources;
 
@@ -31,6 +32,15 @@ public partial class AlbumChip : PanelContainer
         if (Album == null) return;
         
         Artwork.Texture = Album.Artwork?.Texture ?? ArtTextures.NoAlbumArtPng.Load();
+        Globals.Instance.AlbumArtworkUpdated += (song, art) =>
+        {
+            if (song.Album != Album) return;
+            GodotThreading.RunInMainThread(() =>
+            {
+                if (!IsInstanceValid(Artwork)) return;
+                Artwork.Texture = art.Texture;
+            });
+        };
 
         Title.Text = Album.Title;
         Artists.Text = string.Join(", ", Album.Artists.Select(artist => artist.Name));

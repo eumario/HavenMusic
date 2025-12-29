@@ -429,6 +429,18 @@ public partial class MainWindow : Control
             CurrentlyPlayingPanel.Visible = false;
         };
 
+        Globals.Instance.AlbumArtworkUpdated += (song, art) =>
+        {
+            if (!Player.IsPlaying()) return;
+            if (PlayerQueue.Instance.CurrentSong != song) return;
+            GodotThreading.RunInMainThread(() =>
+            {
+                CurrentlyPlayingPanel.AlbumBackground.Texture = art.Texture;
+                CurrentlyPlayingPanel.AlbumIcon.Texture = art.Texture;
+                CurrentArt.Texture = art.Texture;
+            });
+        };
+
     }
     
     private void HandleGoBack()
