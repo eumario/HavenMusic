@@ -2,17 +2,16 @@
 
 [ext_resource type="Script" uid="uid://cmixjn64bm8e8" path="res://UI/CurrentlyPlayingPanel.cs" id="1_1vhjb"]
 [ext_resource type="Texture2D" uid="uid://cuaxu6huikafd" path="res://assets/artwork/no-album-art.png" id="2_dsm6a"]
-[ext_resource type="Shader" uid="uid://bsm67f0dj6bji" path="res://Resources/Shaders/frosted_glass.gdshader" id="2_x84il"]
+[ext_resource type="Shader" uid="uid://mb5avfhs5bn5" path="res://Resources/Shaders/simple_blur.gdshader" id="3_dsm6a"]
 [ext_resource type="Shader" uid="uid://nmlieqhwvcgf" path="res://Resources/Shaders/spectrum_visual.gdshader" id="3_lihly"]
 [ext_resource type="FontFile" uid="uid://7dp41k5s42kj" path="res://addons/fontawesome/fonts/fa-solid-900.woff2" id="3_r0j5v"]
 [ext_resource type="Script" uid="uid://dbhwr47oogsud" path="res://addons/fontawesome/FontAwesomeButton.gd" id="4_dsm6a"]
 [ext_resource type="Script" uid="uid://5100m68rn2ar" path="res://UI/Spectrum.cs" id="4_kc6cj"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_sukvl"]
-shader = ExtResource("2_x84il")
-shader_parameter/intensity = 0.0
-shader_parameter/tint_color = Color(0.41215247, 0.41215247, 0.41215247, 1)
-shader_parameter/tint_amount = 0.09200000437
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qoyss"]
+shader = ExtResource("3_dsm6a")
+shader_parameter/lod = 4.250000201875
+shader_parameter/darkness = 0.4550000216125
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_r0j5v"]
 shader = ExtResource("3_lihly")
@@ -35,7 +34,7 @@ texture = ExtResource("2_dsm6a")
 expand_mode = 1
 
 [node name="GlassEffect" type="ColorRect" parent="."]
-material = SubResource("ShaderMaterial_sukvl")
+material = SubResource("ShaderMaterial_qoyss")
 layout_mode = 2
 
 [node name="CenterContainer" type="CenterContainer" parent="."]

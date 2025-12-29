@@ -63,5 +63,7 @@ public partial class CurrentlyPlayingPanel : PanelContainer
         Player.PlaybackPaused += () => Spectrum.Paused = Player.IsPaused();
         Player.PlaybackStopped += () => Spectrum.Paused = true;
         Player.PlaybackStarted += () => Spectrum.Paused = false;
+        
+        
     }
 }
