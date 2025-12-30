@@ -587,7 +587,7 @@ public partial class MainWindow : Control
         }).CallDeferred();
     }
 
-    private void ShowSongList()
+    private async void ShowSongList()
     {
         AlbumView.Visible = false;
         PlaylistView.Visible = true;
@@ -605,6 +605,7 @@ public partial class MainWindow : Control
         PlaylistView.SetColumnCustomMinimumWidth(3, 60);
         PlaylistView.Clear();
         _playlistRoot = PlaylistView.CreateItem();
+        var i = 0;
         foreach (var song in _database.Songs.OrderBy(x => x.Album.Title).ThenBy(x => x.Title))
         {
             var item = _playlistRoot.CreateChild();
@@ -614,6 +615,9 @@ public partial class MainWindow : Control
             item.SetMetadata(0, song);
             var songLength = TimeSpan.FromSeconds(song.Length);
             item.SetText(3, songLength.ToDisplayTime());
+            i++;
+            if (i % 4 == 0)
+                await this.ProcessFrame();
         }
         
         Callable.From(() =>
@@ -626,13 +630,14 @@ public partial class MainWindow : Control
         }).CallDeferred();
     }
 
-    private void ShowArtistList()
+    private async void ShowArtistList()
     {
         AlbumView.Visible = true;
         PlaylistView.Visible = false;
         AlbumPlaylistView.Visible = true;
         ArtistAlbumSongView.Visible = false;
         AlbumView.QueueFreeChildren();
+        var i = 0;
         foreach (var artist in _database.Artists.OrderBy(x => x.Name))
         {
             var card = ArtistChip.Instantiate(artist);
@@ -643,6 +648,9 @@ public partial class MainWindow : Control
                 SwitchHistory();
             };
             AlbumView.AddChild(card);
+            i++;
+            if (i % 4 == 0)
+                await this.ProcessFrame();
         }
         
         Callable.From(() =>
