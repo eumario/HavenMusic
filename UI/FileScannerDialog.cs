@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HavenMusic.Library;
 using HavenMusic.Library.Models;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Processing;
 using SpotifyAPI.Web;
 using TagLib;
 
@@ -37,6 +39,13 @@ public partial class FileScannerDialog : PanelContainer
     private List<string> _artistQueue = [];
     private List<TagLib.File> _albumQueue = [];
     private SpotifyClient _client;
+
+    private readonly Regex ArtistFeature =
+        new Regex(@"(?<MainArtist>.+?)\s*\(?\s*(?:feat\.?|ft\.?|featuring)\s+(?<FeaturedArtists>[^)]+)\s*\)?",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private readonly Regex SplitSepAndAmper =
+        new Regex(@",|&|\band\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
     
 
     public Database Database;
@@ -87,20 +96,46 @@ public partial class FileScannerDialog : PanelContainer
 
                 foreach (var artist in tagFile.Tag.AlbumArtists)
                 {
-                    if (artist.Contains(", "))
-                        artists.AddRange(artist.Split(", ",
-                            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+                    var match = ArtistFeature.Match(artist);
+                    if (match.Success)
+                    {
+                        artists.Add(match.Groups["MainArtist"].Value.Trim());
+                        artists.AddRange(SplitSepAndAmper.Split(match.Groups["FeaturedArtists"].Value).Select(x => x.Trim()));
+                    }
                     else
-                        artists.Add(artist);
+                    {
+                        var check = SplitSepAndAmper.Match(artist);
+                        if (check.Success)
+                        {
+                            artists.AddRange(SplitSepAndAmper.Split(artist).Select(x => x.Trim()));
+                        }
+                        else
+                        {
+                            artists.Add(artist);
+                        }
+                    }
                 }
 
                 foreach (var artist in tagFile.Tag.Performers)
                 {
-                    if (artist.Contains(", "))
-                        artists.AddRange(artist.Split(", ",
-                            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+                    var match = ArtistFeature.Match(artist);
+                    if (match.Success)
+                    {
+                        artists.Add(match.Groups["MainArtist"].Value.Trim());
+                        artists.AddRange(SplitSepAndAmper.Split(match.Groups["FeaturedArtists"].Value).Select(x => x.Trim()));
+                    }
                     else
-                        artists.Add(artist);
+                    {
+                        var check = SplitSepAndAmper.Match(artist);
+                        if (check.Success)
+                        {
+                            artists.AddRange(SplitSepAndAmper.Split(artist).Select(x => x.Trim()));
+                        }
+                        else
+                        {
+                            artists.Add(artist);
+                        }
+                    }
                 }
 
                 if (artists.Count > 0)
@@ -172,19 +207,20 @@ public partial class FileScannerDialog : PanelContainer
             Database.ChangeTracker.Clear();
             _albumsCache.Clear();
             _artistsCache.Clear();
-            _artworksCache.Clear();
             _songsCache.Clear();
             GodotThreading.RunInMainThread(() => Visible = false);
             _ = FetchArtist();
             _ = FetchAlbumArtwork();
             GodotThreading.RunInMainThread(async () =>
             {
-                while (_artistQueue.Count > 0 && _albumQueue.Count > 0)
+                while (_artistQueue.Count > 0 || _albumQueue.Count > 0)
                 {
                     await this.ProcessFrame();
                 }
-
+                
                 await Database.SaveChangesAsync();
+                Database.ChangeTracker.Clear();
+                _artworksCache.Clear();
             });
         }
     }
@@ -209,6 +245,13 @@ public partial class FileScannerDialog : PanelContainer
 
     private async Task FetchAlbumArtwork()
     {
+        var resizeOptions = new ResizeOptions()
+        {
+            Mode = ResizeMode.Max,
+            Size = new Size(1024, 1024),
+            Sampler = KnownResamplers.Lanczos3
+        };
+        
         var cnt = _albumQueue.Count;
         foreach (var (tagFile, i) in _albumQueue.Select((x, y) => (x, y)))
         {
@@ -222,15 +265,15 @@ public partial class FileScannerDialog : PanelContainer
 
             if (picture == null) continue;
             byte[] buffer;
-            if (picture.MimeType == "image/png")
-                buffer = picture.Data.ToArray();
-            else
+
+            var sharpImage = SixLabors.ImageSharp.Image.Load(picture.Data.ToArray());
+            if (sharpImage.Size.Width > 1024 || sharpImage.Size.Height > 1024)
             {
-                var sharpImage = SixLabors.ImageSharp.Image.Load(picture.Data.ToArray());
-                var memStream = new MemoryStream();
-                await sharpImage.SaveAsPngAsync(memStream);
-                buffer = memStream.ToArray();
+                sharpImage = sharpImage.Clone(x => x.Resize(resizeOptions));
             }
+            var memStream = new MemoryStream();
+            await sharpImage.SaveAsPngAsync(memStream);
+            buffer = memStream.ToArray();
 
             var hash = buffer.Sha512Hash().HashToStr();
             var artwork = Database.Artworks.FirstOrDefault(x => x.Hash == hash) ??
@@ -287,6 +330,7 @@ public partial class FileScannerDialog : PanelContainer
                 await System.IO.File.WriteAllBytesAsync(artwork.ImagePath, data);
                 Database.Artworks.Add(artwork);
                 artist.Artwork = artwork;
+                _artworksCache.Add(artwork);
             }
             Globals.Instance.EmitArtistArtworkUpdated(artist, artwork);
         }
