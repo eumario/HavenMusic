@@ -138,7 +138,6 @@ custom_minimum_size = Vector2(185, 0)
 layout_mode = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MainUI/Header/HBoxContainer"]
-visible = false
 layout_mode = 2
 
 [node name="HistoryBackButton" type="Button" parent="MainUI/Header/HBoxContainer/HBoxContainer"]

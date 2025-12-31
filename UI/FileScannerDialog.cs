@@ -104,15 +104,7 @@ public partial class FileScannerDialog : PanelContainer
                     }
                     else
                     {
-                        var check = SplitSepAndAmper.Match(artist);
-                        if (check.Success)
-                        {
-                            artists.AddRange(SplitSepAndAmper.Split(artist).Select(x => x.Trim()));
-                        }
-                        else
-                        {
-                            artists.Add(artist);
-                        }
+                        artists.Add(artist);
                     }
                 }
 
@@ -126,15 +118,7 @@ public partial class FileScannerDialog : PanelContainer
                     }
                     else
                     {
-                        var check = SplitSepAndAmper.Match(artist);
-                        if (check.Success)
-                        {
-                            artists.AddRange(SplitSepAndAmper.Split(artist).Select(x => x.Trim()));
-                        }
-                        else
-                        {
-                            artists.Add(artist);
-                        }
+                        artists.Add(artist);
                     }
                 }
 
@@ -143,7 +127,9 @@ public partial class FileScannerDialog : PanelContainer
                     foreach (var artist in artists)
                     {
                         var dbArtist = Database.Artists.FirstOrDefault(x => x.Name == artist) ??
-                                       _artistsCache.FirstOrDefault(x => x.Name == artist);
+                                       Database.Artists.FirstOrDefault(x => x.Name.ToLower() == artist.ToLower()) ??
+                                       _artistsCache.FirstOrDefault(x => x.Name == artist) ??
+                                       _artistsCache.FirstOrDefault(x => x.Name.ToLower() == artist.ToLower());
                         if (dbArtist == null)
                         {
                             dbArtist = new Artist();
