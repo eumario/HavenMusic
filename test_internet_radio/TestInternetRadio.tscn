@@ -1,0 +1,49 @@
+[gd_scene load_steps=2 format=3 uid="uid://dm51m14yhh8wk"]
+
+[ext_resource type="Script" uid="uid://cp1p1imb6l4ar" path="res://test_internet_radio/test_internet_radio.gd" id="1_i1rj3"]
+
+[node name="TestInternetRadio" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_i1rj3")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="CenterContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="CenterContainer/GridContainer"]
+layout_mode = 2
+text = "Radio URL:"
+
+[node name="RadioUrlLineEdit" type="LineEdit" parent="CenterContainer/GridContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+text = "http://17573.live.streamtheworld.com:3690/977_80_SC"
+
+[node name="Control" type="Control" parent="CenterContainer/GridContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/GridContainer"]
+layout_mode = 2
+
+[node name="PlayButton" type="Button" parent="CenterContainer/GridContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Play"
+
+[node name="StopButton" type="Button" parent="CenterContainer/GridContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Stop"
+
+[node name="AudioPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
